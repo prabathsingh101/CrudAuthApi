@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
+using System.Data;
 using System.Security.Claims;
 
 namespace Auth.API.Controllers
@@ -151,23 +152,23 @@ namespace Auth.API.Controllers
                 return Ok(status);
             }
             // check if user exists
-            var userExists = await userManager.FindByNameAsync(model.Username);
-            if (userExists != null)
-            {
-                status.StatusCode = 0;
-                status.Message = "User name already exists.";
-                return Ok(status);
-            }
-            //var emailExists = await userManager.FindByEmailAsync(model.Email);
-            //if (emailExists != null)
+            //var userExists = await userManager.FindByNameAsync(model.Username);
+            //if (userExists != null)
             //{
             //    status.StatusCode = 0;
-            //    status.Message = "Email-id already exists.";
+            //    status.Message = "User name already exists.";
             //    return Ok(status);
             //}
+            var emailExists = await userManager.FindByEmailAsync(model.Email);
+            if (emailExists != null)
+            {
+                status.StatusCode = 0;
+                status.Message = "Email-id already exists.";
+                return Ok(status);
+            }
             var user = new ApplicationUser
             {
-                UserName = model.Username,
+                UserName = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
                 Email = model.Email,
                 Name = model.Name
@@ -183,13 +184,25 @@ namespace Auth.API.Controllers
 
             // add roles here
             // for admin registration UserRoles.Admin instead of UserRoles.Roles
-            if (!await roleManager.RoleExistsAsync(UserRoles.User))
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+            //if (!await roleManager.RoleExistsAsync(UserRoles.User))
+            //    await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
 
-            if (await roleManager.RoleExistsAsync(UserRoles.User))
+            //if (await roleManager.RoleExistsAsync(UserRoles.User))
+            //{
+            //    await userManager.AddToRoleAsync(user, UserRoles.User);
+            //}
+            //if (!await roleManager.RoleExistsAsync(model.Roles[0]))
+            //    await roleManager.CreateAsync(new IdentityRole(model.Roles[0]));
+
+            if (model.Roles != null && model.Roles.Any())
             {
-                await userManager.AddToRoleAsync(user, UserRoles.User);
+                foreach (var role in model.Roles)
+                {
+                    await roleManager.CreateAsync(new IdentityRole(role));
+                    await userManager.AddToRoleAsync(user, role);
+                }
             }
+
             status.StatusCode = 1;
             status.Message = "Sucessfully registered";
             return Ok(status);

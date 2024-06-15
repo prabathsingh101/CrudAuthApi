@@ -9,6 +9,8 @@
         public string? Class { get; set; }
 
         public decimal? RollNumber { get; set; }
-        //test
+
+        public string? Address { get; set; }
+        public int MobileNumber { get; set; }
     }
 }

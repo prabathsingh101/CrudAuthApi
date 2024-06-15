@@ -13,6 +13,6 @@ namespace Auth.API.Data
 
         public DbSet<TokenInfo> TokenInfo { get; set; }
 
-
+        public DbSet<Category> Categories { get; set; }
     }
 }

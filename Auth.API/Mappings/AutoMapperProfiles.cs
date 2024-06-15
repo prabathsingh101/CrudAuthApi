@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using Auth.API.Models.Domain;
+using Auth.API.Models.DTO;
+using AutoMapper;
 
 namespace Auth.API.Mappings
 {
@@ -6,7 +8,9 @@ namespace Auth.API.Mappings
     {
         public AutoMapperProfiles()
         {
-                
+            CreateMap<TeacherModel, TeacherDto>().ReverseMap();
+            CreateMap<AddTeacherRequestDto, TeacherModel>().ReverseMap();
+            CreateMap<UpdateTeacherRequestDto, TeacherModel>().ReverseMap();
         }
     }
 }

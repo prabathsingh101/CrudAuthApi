@@ -100,6 +100,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
+builder.Services.AddScoped<ITeacherRepository, SQLTeacherRepository>();
 
 //Calling Auto mapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));

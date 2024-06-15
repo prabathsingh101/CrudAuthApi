@@ -18,5 +18,7 @@ namespace Auth.API.Data
         public DbSet<Student> Students { get; set; }  
         
         public  DbSet<ImageModel> Images { get; set; }  
+
+        public DbSet<TeacherModel> Teachers { get; set; }   
     }
 }

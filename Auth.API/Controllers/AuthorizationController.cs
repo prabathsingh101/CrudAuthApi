@@ -184,24 +184,22 @@ namespace Auth.API.Controllers
 
             // add roles here
             // for admin registration UserRoles.Admin instead of UserRoles.Roles
-            //if (!await roleManager.RoleExistsAsync(UserRoles.User))
-            //    await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+            if (!await roleManager.RoleExistsAsync(UserRoles.User))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
 
-            //if (await roleManager.RoleExistsAsync(UserRoles.User))
+            if (await roleManager.RoleExistsAsync(UserRoles.User))            
+                await userManager.AddToRoleAsync(user, UserRoles.User);           
+
+
+            //This condition will be used on the providing role by UI
+            //if (model.Roles != null && model.Roles.Any())
             //{
-            //    await userManager.AddToRoleAsync(user, UserRoles.User);
+            //    foreach (var role in model.Roles)
+            //    {
+            //        await roleManager.CreateAsync(new IdentityRole(role));
+            //        await userManager.AddToRoleAsync(user, role);
+            //    }
             //}
-            //if (!await roleManager.RoleExistsAsync(model.Roles[0]))
-            //    await roleManager.CreateAsync(new IdentityRole(model.Roles[0]));
-
-            if (model.Roles != null && model.Roles.Any())
-            {
-                foreach (var role in model.Roles)
-                {
-                    await roleManager.CreateAsync(new IdentityRole(role));
-                    await userManager.AddToRoleAsync(user, role);
-                }
-            }
 
             status.StatusCode = 1;
             status.Message = "Sucessfully registered";
@@ -210,53 +208,54 @@ namespace Auth.API.Controllers
         }
 
         // after registering admin we will comment this code, because i want only one admin in this application
-        //[HttpPost]
-        //public async Task<IActionResult> RegistrationAdmin([FromBody] RegistrationModel model)
-        //{
-        //    var status = new Status();
-        //    if (!ModelState.IsValid)
-        //    {
-        //        status.StatusCode = 0;
-        //        status.Message = "Please pass all the required fields";
-        //        return Ok(status);
-        //    }
-        //    // check if user exists
-        //    var userExists = await userManager.FindByNameAsync(model.Username);
-        //    if (userExists != null)
-        //    {
-        //        status.StatusCode = 0;
-        //        status.Message = "Invalid username";
-        //        return Ok(status);
-        //    }
-        //    var user = new ApplicationUser
-        //    {
-        //        UserName = model.Username,
-        //        SecurityStamp = Guid.NewGuid().ToString(),
-        //        Email = model.Email,
-        //        Name = model.Name
-        //    };
-        //    // create a user here
-        //    var result = await userManager.CreateAsync(user, model.Password);
-        //    if (!result.Succeeded)
-        //    {
-        //        status.StatusCode = 0;
-        //        status.Message = "User creation failed";
-        //        return Ok(status);
-        //    }
+        [HttpPost]
+        [Route("Registration-Admin")]
+        public async Task<IActionResult> RegistrationAdmin([FromBody] RegistrationModelDto model)
+        {
+            var status = new StatusDto();
+            if (!ModelState.IsValid)
+            {
+                status.StatusCode = 0;
+                status.Message = "Please pass all the required fields";
+                return Ok(status);
+            }
+            // check if user exists
+            var userExists = await userManager.FindByNameAsync(model.Username);
+            if (userExists != null)
+            {
+                status.StatusCode = 0;
+                status.Message = "Invalid username";
+                return Ok(status);
+            }
+            var user = new ApplicationUser
+            {
+                UserName = model.Username,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                Email = model.Email,
+                Name = model.Name
+            };
+            // create a user here
+            var result = await userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+            {
+                status.StatusCode = 0;
+                status.Message = "User creation failed";
+                return Ok(status);
+            }
 
-        //    // add roles here
-        //    // for admin registration UserRoles.Admin instead of UserRoles.Roles
-        //    if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
-        //        await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+            // add roles here
+            // for admin registration UserRoles.Admin instead of UserRoles.Roles
+            if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
 
-        //    if (await roleManager.RoleExistsAsync(UserRoles.Admin))
-        //    {
-        //        await userManager.AddToRoleAsync(user, UserRoles.Admin);
-        //    }
-        //    status.StatusCode = 1;
-        //    status.Message = "Sucessfully registered";
-        //    return Ok(status);
+            if (await roleManager.RoleExistsAsync(UserRoles.Admin))
+            {
+                await userManager.AddToRoleAsync(user, UserRoles.Admin);
+            }
+            status.StatusCode = 1;
+            status.Message = "Sucessfully registered";
+            return Ok(status);
 
-        //}
+        }
     }
 }

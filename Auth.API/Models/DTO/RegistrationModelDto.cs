@@ -13,6 +13,6 @@ namespace Auth.API.Models.DTO
         [Required]
         public string? Password { get; set; }
 
-        public string[] Roles { get; set; }
+        //public string[] Roles { get; set; }
     }
 }

@@ -2,11 +2,9 @@
 using Auth.API.Models.Domain;
 using Auth.API.Models.DTO;
 using Auth.API.Repositories.Abstract;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
-using System.Data;
 using System.Security.Claims;
 
 namespace Auth.API.Controllers
@@ -156,14 +154,14 @@ namespace Auth.API.Controllers
             //if (userExists != null)
             //{
             //    status.StatusCode = 0;
-            //    status.Message = "User name already exists.";
+            //    status.Message = "Username has already taken.";
             //    return Ok(status);
             //}
             var emailExists = await userManager.FindByEmailAsync(model.Email);
             if (emailExists != null)
             {
                 status.StatusCode = 0;
-                status.Message = "Email-id already exists.";
+                status.Message = "Email-id has already taken.";
                 return Ok(status);
             }
             var user = new ApplicationUser
@@ -212,50 +210,60 @@ namespace Auth.API.Controllers
         [Route("Registration-Admin")]
         public async Task<IActionResult> RegistrationAdmin([FromBody] RegistrationModelDto model)
         {
-            var status = new StatusDto();
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                status.StatusCode = 0;
-                status.Message = "Please pass all the required fields";
+                var status = new StatusDto();
+                if (!ModelState.IsValid)
+                {
+                    status.StatusCode = 0;
+                    status.Message = "Please pass all the required fields";
+                    return Ok(status);
+                }
+                // check if user exists
+                //var userExists = await userManager.FindByNameAsync(model.Username);
+                //if (userExists != null)
+                //{
+                //    status.StatusCode = 0;
+                //    status.Message = "Username has already taken";
+                //    return Ok(status);
+                //}
+                var emailExists = await userManager.FindByEmailAsync(model.Email);
+                if (emailExists != null)
+                {
+                    status.StatusCode = 0;
+                    status.Message = "Email has already taken";
+                    return Ok(status);
+                }
+                var user = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    Email = model.Email,
+                    Name = model.Name
+                };
+                // create a user here
+                var result = await userManager.CreateAsync(user, model.Password);
+                if (!result.Succeeded)
+                {
+                    status.StatusCode = 0;
+                    status.Message = "User creation failed";
+                    return Ok(status);
+                }
+
+                // add roles here
+                // for admin registration UserRoles.Admin instead of UserRoles.Roles
+                if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
+                    await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+
+                if (await roleManager.RoleExistsAsync(UserRoles.Admin))
+                {
+                    await userManager.AddToRoleAsync(user, UserRoles.Admin);
+                }
+                status.StatusCode = 1;
+                status.Message = "Sucessfully registered";
                 return Ok(status);
             }
-            // check if user exists
-            var userExists = await userManager.FindByNameAsync(model.Username);
-            if (userExists != null)
-            {
-                status.StatusCode = 0;
-                status.Message = "Invalid username";
-                return Ok(status);
-            }
-            var user = new ApplicationUser
-            {
-                UserName = model.Username,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                Email = model.Email,
-                Name = model.Name
-            };
-            // create a user here
-            var result = await userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-            {
-                status.StatusCode = 0;
-                status.Message = "User creation failed";
-                return Ok(status);
-            }
-
-            // add roles here
-            // for admin registration UserRoles.Admin instead of UserRoles.Roles
-            if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-
-            if (await roleManager.RoleExistsAsync(UserRoles.Admin))
-            {
-                await userManager.AddToRoleAsync(user, UserRoles.Admin);
-            }
-            status.StatusCode = 1;
-            status.Message = "Sucessfully registered";
-            return Ok(status);
-
+            return BadRequest(ModelState);
         }
     }
 }

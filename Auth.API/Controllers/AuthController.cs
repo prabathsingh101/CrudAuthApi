@@ -2,6 +2,8 @@
 using Auth.API.Models.Domain;
 using Auth.API.Models.DTO;
 using Auth.API.Repositories.Abstract;
+using Auth.API.Repositories.Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -11,13 +13,13 @@ namespace Auth.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthorizationController : ControllerBase
+    public class AuthController : ControllerBase
     {
         private readonly DatabaseContext _context;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly ITokenService _tokenService;
-        public AuthorizationController(DatabaseContext context,
+        public AuthController(DatabaseContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             ITokenService tokenService
@@ -264,6 +266,51 @@ namespace Auth.API.Controllers
                 return Ok(status);
             }
             return BadRequest(ModelState);
+        }
+
+        [HttpPost]
+        [Route("Refresh")]
+        public IActionResult Refresh(RefreshTokenRequestDto tokenApiModel)
+        {
+            if (tokenApiModel is null)
+                return BadRequest("Invalid client request");
+            string accessToken = tokenApiModel.AccessToken;
+            string refreshToken = tokenApiModel.RefreshToken;
+            var principal = _tokenService.GetPrincipalFromExpiredToken(accessToken);
+            var username = principal.Identity.Name;
+            var user = _context.TokenInfo.SingleOrDefault(u => u.Usename == username);
+            if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiry <= DateTime.Now)
+                return BadRequest("Invalid client request");
+            var newAccessToken = _tokenService.GetToken(principal.Claims);
+            var newRefreshToken = _tokenService.GetRefreshToken();
+            user.RefreshToken = newRefreshToken;
+            _context.SaveChanges();
+            return Ok(new RefreshTokenRequestDto()
+            {
+                AccessToken = newAccessToken.TokenString,
+                RefreshToken = newRefreshToken
+            });
+        }
+
+        //revoken is use for removing token enntry
+        [HttpPost, Authorize]
+        [Route("Revoke")]
+        public IActionResult Revoke()
+        {
+            try
+            {
+                var username = User.Identity.Name;
+                var user = _context.TokenInfo.SingleOrDefault(u => u.Usename == username);
+                if (user is null)
+                    return BadRequest();
+                user.RefreshToken = null;
+                _context.SaveChanges();
+                return Ok(true);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
     }
 }

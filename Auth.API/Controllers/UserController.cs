@@ -7,7 +7,7 @@ namespace Auth.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProtectedController : ControllerBase
+    public class UserController : ControllerBase
     {
         [HttpGet]
         [Authorize(Roles = "User")]

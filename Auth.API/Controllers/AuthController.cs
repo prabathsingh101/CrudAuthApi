@@ -19,16 +19,19 @@ namespace Auth.API.Controllers
         private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly ITokenService _tokenService;
+        private readonly IUserService userService;
+
         public AuthController(DatabaseContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            ITokenService tokenService
+            ITokenService tokenService, IUserService userService
             )
         {
             this._context = context;
             this.userManager = userManager;
             this.roleManager = roleManager;
             this._tokenService = tokenService;
+            this.userService = userService;
         }
 
         [HttpPost]
@@ -187,8 +190,8 @@ namespace Auth.API.Controllers
             if (!await roleManager.RoleExistsAsync(UserRoles.User))
                 await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
 
-            if (await roleManager.RoleExistsAsync(UserRoles.User))            
-                await userManager.AddToRoleAsync(user, UserRoles.User);           
+            if (await roleManager.RoleExistsAsync(UserRoles.User))
+                await userManager.AddToRoleAsync(user, UserRoles.User);
 
 
             //This condition will be used on the providing role by UI
@@ -312,5 +315,14 @@ namespace Auth.API.Controllers
                 return BadRequest();
             }
         }
+        [HttpGet]
+        [Route("GetName")]
+        [Authorize(Roles ="Admin")]
+        public IActionResult GetName()
+        {
+            var userName = userService.GetMyName();
+            return Ok(userName);
+        }
+
     }
 }

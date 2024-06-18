@@ -1,6 +1,7 @@
 ﻿using Auth.API.Data;
 using Auth.API.Models.Domain;
 using Auth.API.Repositories.Abstract;
+using Microsoft.EntityFrameworkCore;
 
 namespace Auth.API.Repositories.Domain
 {
@@ -18,6 +19,14 @@ namespace Auth.API.Repositories.Domain
             this.httpContextAccessor = httpContextAccessor;
             this.dbContext = dbContext;
         }
+
+        public async Task<List<ImageModel>> GetAllAsync()
+        {
+            return await dbContext.Images.ToListAsync();
+        }
+
+      
+
         public async Task<ImageModel> Upload(ImageModel image)
         {
             var localFilePath = Path.Combine(webHostEnvironment.ContentRootPath, "Images",

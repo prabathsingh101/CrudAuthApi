@@ -11,6 +11,9 @@ namespace Auth.API.Mappings
             CreateMap<TeacherModel, TeacherDto>().ReverseMap();
             CreateMap<AddTeacherRequestDto, TeacherModel>().ReverseMap();
             CreateMap<UpdateTeacherRequestDto, TeacherModel>().ReverseMap();
+
+
+            CreateMap<ImageModel, ImageDto>().ReverseMap(); 
         }
     }
 }

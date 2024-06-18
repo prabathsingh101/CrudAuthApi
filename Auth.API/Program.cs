@@ -101,11 +101,16 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
 builder.Services.AddScoped<ITeacherRepository, SQLTeacherRepository>();
+builder.Services.AddScoped<IUserService, UserService>();    
 
 //Calling Auto mapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
+
+
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -118,6 +123,7 @@ app.UseHttpsRedirection();
 app.UseCors(options =>
             options.WithOrigins("*").
             AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
 
 app.UseAuthentication();
 

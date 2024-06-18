@@ -1,6 +1,7 @@
 ﻿using Auth.API.Models.Domain;
 using Auth.API.Models.DTO;
 using Auth.API.Repositories.Abstract;
+using AutoMapper;
 using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,10 +14,22 @@ namespace Auth.API.Controllers
     public class ImagesController : ControllerBase
     {
         private readonly IImageRepository imageRepository;
+        private readonly IMapper mapper;
 
-        public ImagesController(IImageRepository imageRepository)
+        public ImagesController(IImageRepository imageRepository, IMapper mapper)
         {
             this.imageRepository = imageRepository;
+            this.mapper = mapper;
+        }
+
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAll()
+        {
+            var model = await imageRepository.GetAllAsync();
+
+            return Ok(mapper.Map<List<ImageDto>>(model));
         }
 
         [HttpPost]

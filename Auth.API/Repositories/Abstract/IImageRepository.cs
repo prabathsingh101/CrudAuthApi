@@ -5,5 +5,7 @@ namespace Auth.API.Repositories.Abstract
     public interface IImageRepository
     {
         Task<ImageModel> Upload(ImageModel image);
+
+        Task<List<ImageModel>> GetAllAsync();
     }
 }

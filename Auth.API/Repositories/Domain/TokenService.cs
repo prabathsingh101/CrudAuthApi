@@ -13,9 +13,11 @@ namespace Auth.API.Repositories.Domain
     {
         private readonly IConfiguration _configuration;
 
+
         public TokenService(IConfiguration configuration)
         {
             _configuration = configuration;
+
         }
 
 
@@ -55,7 +57,7 @@ namespace Auth.API.Repositories.Domain
             var token = new JwtSecurityToken(
                 issuer: _configuration["JWT:ValidIssuer"],
                 audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.Now.AddMinutes(30),
                 claims: claim,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
                 );
@@ -64,5 +66,7 @@ namespace Auth.API.Repositories.Domain
 
             return new TokenResponseDto { TokenString = tokenString, ValidTo = token.ValidTo };
         }
+
+      
     }
 }

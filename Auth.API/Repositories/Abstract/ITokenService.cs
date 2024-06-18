@@ -9,5 +9,7 @@ namespace Auth.API.Repositories.Abstract
         TokenResponseDto GetToken(IEnumerable<Claim> claim);
         string GetRefreshToken();
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
+
+       
     }
 }

@@ -101,7 +101,30 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
 builder.Services.AddScoped<ITeacherRepository, SQLTeacherRepository>();
-builder.Services.AddScoped<IUserService, UserService>();    
+builder.Services.AddScoped<IUserService, UserService>();
+
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy(name: "imsApp", configurePolicy: policyBuilder =>
+//    {
+//        policyBuilder.WithOrigins("http://localhost:4200");
+//        policyBuilder.AllowAnyHeader();
+//        policyBuilder.AllowAnyMethod();
+//        policyBuilder.AllowCredentials();
+//    });
+//});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "MyAllowSpecificOrigins",
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:4200").
+                                              AllowAnyHeader()
+                                              .AllowAnyMethod()
+                                              .AllowAnyOrigin();
+                      });
+});
 
 //Calling Auto mapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
@@ -120,11 +143,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors(options =>
-            options.WithOrigins("*").
-            AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+//app.UseCors(options =>
+//            options.WithOrigins("*").
+//            AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
-
+app.UseCors("MyAllowSpecificOrigins");
 app.UseAuthentication();
 
 app.UseAuthorization();

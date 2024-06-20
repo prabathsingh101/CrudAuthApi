@@ -144,7 +144,7 @@ namespace Auth.API.Controllers
         }
 
         [HttpPost]
-        [Route("Registration")]
+        [Route("Registration-User")]
         public async Task<IActionResult> Registration([FromBody] RegistrationModelDto model)
         {
             var status = new StatusDto();

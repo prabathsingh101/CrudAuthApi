@@ -73,5 +73,7 @@ namespace Auth.API.Controllers
                 ModelState.AddModelError("file", "file size is more than 10MB, please upload a smaller size");
             }
         }
+
+        
     }
 }

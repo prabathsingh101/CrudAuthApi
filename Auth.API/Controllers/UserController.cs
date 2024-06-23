@@ -14,6 +14,7 @@ namespace Auth.API.Controllers
     [ApiController]
 
     //testing
+    //santosh 23s
     public class UserController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> userManager;

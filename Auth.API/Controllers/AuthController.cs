@@ -101,7 +101,7 @@ namespace Auth.API.Controllers
                     {
                         Usename = user.UserName,
                         RefreshToken = refreshToken,
-                        RefreshTokenExpiry = DateTime.Now.AddDays(1)
+                        RefreshTokenExpiry = DateTime.Now.AddHours(12)
                     };
                     _context.TokenInfo.Add(info);
                 }
@@ -109,7 +109,7 @@ namespace Auth.API.Controllers
                 else
                 {
                     tokenInfo.RefreshToken = refreshToken;
-                    tokenInfo.RefreshTokenExpiry = DateTime.Now.AddDays(1);
+                    tokenInfo.RefreshTokenExpiry = DateTime.Now.AddHours(12);
                 }
                 try
                 {
@@ -282,7 +282,7 @@ namespace Auth.API.Controllers
             var principal = _tokenService.GetPrincipalFromExpiredToken(accessToken);
             var username = principal.Identity.Name;
             var user = _context.TokenInfo.SingleOrDefault(u => u.Usename == username);
-            if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiry <= DateTime.Now)
+            if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiry <= DateTime.UtcNow)
                 return BadRequest("Invalid client request");
             var newAccessToken = _tokenService.GetToken(principal.Claims);
             var newRefreshToken = _tokenService.GetRefreshToken();
@@ -321,6 +321,15 @@ namespace Auth.API.Controllers
         public IActionResult GetName()
         {
             var userName = userService.GetMyName();
+            return Ok(userName);
+        }
+
+        [HttpGet]
+        [Route("GetRoleName")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult GetRoleName()
+        {
+            var userName = userService.GetRoleName();
             return Ok(userName);
         }
 

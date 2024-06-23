@@ -20,9 +20,9 @@ namespace Auth.API.Repositories.Domain
             this.context = context;
         }
 
-        public Task<IEnumerable<UserModel>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserModel>> GetAllUsersAsync()
         {
-            throw new NotImplementedException();
+            return await context.GetAllUsers.FromSqlRaw("GetAllUsers").ToListAsync();
         }
 
         public string GetMyName()
@@ -32,7 +32,13 @@ namespace Auth.API.Repositories.Domain
                 result = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name) ?? string.Empty;
             return result;
         }
+        public string GetRoleName()
+        {
+            var result = string.Empty;
+            if (httpContextAccessor.HttpContext != null)
+                result = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Role) ?? string.Empty;
+            return result;
+        }
 
-        
     }
 }

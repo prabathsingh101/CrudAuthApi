@@ -30,7 +30,7 @@ namespace Auth.API.Controllers
             var principal = _service.GetPrincipalFromExpiredToken(accessToken);
             var username = principal.Identity.Name;
             var user = _ctx.TokenInfo.SingleOrDefault(u => u.Usename == username);
-            if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiry <= DateTime.Now)
+            if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiry <= DateTime.UtcNow)
                 return BadRequest("Invalid client request");
             var newAccessToken = _service.GetToken(principal.Claims);
             var newRefreshToken = _service.GetRefreshToken();

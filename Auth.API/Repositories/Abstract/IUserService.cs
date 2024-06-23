@@ -6,7 +6,9 @@ namespace Auth.API.Repositories.Abstract
     {
 
         public string GetMyName();
-        
+        public string GetRoleName();
+
+
         Task<IEnumerable<UserModel>> GetAllUsersAsync();  
 
     }

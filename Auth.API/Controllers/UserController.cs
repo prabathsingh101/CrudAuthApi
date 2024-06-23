@@ -12,6 +12,8 @@ namespace Auth.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
+    //testing
     public class UserController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> userManager;

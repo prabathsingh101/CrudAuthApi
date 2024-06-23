@@ -17,7 +17,7 @@ namespace Auth.API.Controllers
     {
         private readonly ITeacherRepository teacherRepository;
         private readonly IMapper mapper;
-
+        //Santosh
         public TeachersController(ITeacherRepository teacherRepository, IMapper mapper)
         {
             this.teacherRepository = teacherRepository;
